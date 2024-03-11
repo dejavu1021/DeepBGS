@@ -100,26 +100,6 @@ def SNV(data):
     data_snv = [[((data[i][j] - data_average[i]) / data_std[i]) for j in range(n)] for i in range(m)]
     return  data_snv
 
-def MSC(data):
-    """
-       :param data: raw spectrum data, shape (n_samples, n_features)
-       :return: data after MSC :(n_samples, n_features)
-    """
-    n, p = data.shape
-    msc = np.ones((n, p))
-
-    for j in range(n):
-        mean = np.mean(data, axis=0)
-
-    # 线性拟合
-    for i in range(n):
-        y = data[i, :]
-        l = LinearRegression()
-        l.fit(mean.reshape(-1, 1), y.reshape(-1, 1))
-        k = l.coef_
-        b = l.intercept_
-        msc[i, :] = (y - b) / k
-    return msc
 # 移动平均平滑
 def MA(data, WSZ=11):
     """
@@ -145,27 +125,6 @@ def mean_centralization(sdata):
         temp2 = np.tile(temp1, sdata.shape[0]).reshape(
             (sdata.shape[0], sdata.shape[1]))
         return sdata - temp2,temp1
-def wave(self, data_x):  # 小波变换
-        data_x = deepcopy(data_x)
-        if isinstance(data_x, pd.DataFrame):
-            data_x = data_x.values
-        def wave_(data_x):
-            w = pywt.Wavelet('db8')  # 选用Daubechies8小波
-            maxlev = pywt.dwt_max_level(len(data_x), w.dec_len)
-            coeffs = pywt.wavedec(data_x, 'db8', level=maxlev)
-            threshold = 0.04
-            for i in range(1, len(coeffs)):
-                coeffs[i] = pywt.threshold(coeffs[i], threshold * max(coeffs[i]))
-            datarec = pywt.waverec(coeffs, 'db8')
-            return datarec
-
-        tmp = None
-        for i in range(data_x.shape[0]):
-            if (i == 0):
-                tmp = wave_(data_x[i])
-            else:
-                tmp = np.vstack((tmp, wave_(data_x[i])))
-        return tmp
 
 def pro(data,me):
     sdata = deepcopy(data)
@@ -173,33 +132,14 @@ def pro(data,me):
         (sdata.shape[0], sdata.shape[1]))
     return sdata - temp2
 
-def baseline_correction(data, window_size=11, poly_order=3):
-    # 平滑数据
-    smoothed_data = savgol_filter(data, window_size, poly_order, axis=1)
-
-    # 计算平均光谱
-    mean_spectrum = np.mean(smoothed_data, axis=0)
-
-    # 拟合多项式到平均光谱
-    X = np.arange(len(mean_spectrum)).reshape(-1, 1)
-    poly_features = PolynomialFeatures(degree=poly_order, include_bias=False)
-    X_poly = poly_features.fit_transform(X)
-    lin_reg = LinearRegression()
-    lin_reg.fit(X_poly, mean_spectrum)
-    baseline = lin_reg.predict(X_poly)
-
-    # 去除基线
-    corrected_data = smoothed_data - baseline.reshape(1, -1)
-
-    return corrected_data
 # 导入数据集切割训练与测试数据
 
-acc_all = np.empty((1, 5))
-auc_all = np.empty((1, 5))
-sp_all = np.empty((1,5))
-sn_all = np.empty((1,5))
-mcc_all = np.empty((1,5))
-au_all = np.empty((1,5))
+acc_all = np.empty((1, 4))
+auc_all = np.empty((1, 4))
+sp_all = np.empty((1,4))
+sn_all = np.empty((1,4))
+mcc_all = np.empty((1,4))
+au_all = np.empty((1,4))
 spa = SPA.SPA()
 for b in range(1):
     # data_train, data_test, label_train, label_test = train_test_split(features,lables,test_size=0.3,shuffle=True)
@@ -215,7 +155,6 @@ for b in range(1):
     # data_D = SG(data[:,:-1])
     # data_D = data[:,:-1]
     # data_D = MA(data[:,:-1])
-    # data_D,a = mean_centralization(data[:,:-1])
     data_D = SNV(data[:,:-1])
     features = np.array(data_D)
 
@@ -284,13 +223,9 @@ for b in range(1):
 
     rfc = RandomForestClassifier()
 
-    svc = SVC(kernel='linear',probability=True)
-    svc2 = SVC(kernel='rbf',probability=True)
-    # svc2 = SVC(kernel='linear')
+    svc = SVC(kernel='rbf',probability=True)
     xgb = XGBClassifier()
-#     # adj_params, fixed_params = xgboost_parameters()
-#     # model_adjust_parameters(adj_params, fixed_params)
-    Models = [ dtc, rfc, svc,svc2,xgb]
+    Models = [ dtc, rfc,svc,xgb]
     for i in range(len(Models)):
         ac,auc,precisions,recalls,fpr,tpr,sp,sn,mcc= regression_model(train_data,test_data, train_lable, test_lable,
                                                   Models[i])
