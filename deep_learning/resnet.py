@@ -423,7 +423,7 @@ sss = ss[3]
 all = np.empty((4, 130))
 all = torch.tensor(all, dtype=torch.float)
 # 读取CSV数据
-data = pd.read_csv('result.csv',header=None)
+data = pd.read_csv('../result.csv',header=None)
 
 data = data.values
 # np.random.shuffle(data)
