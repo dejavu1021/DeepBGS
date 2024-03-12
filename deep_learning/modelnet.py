@@ -41,15 +41,6 @@ def SG(data, w=7, p=2,d=0):
     return  signal.savgol_filter(data, w, p,deriv=d)
 # 标准正态变换
 # 均值中心化
-def CT(data):
-    """
-       :param data: raw spectrum data, shape (n_samples, n_features)
-       :return: data after MeanScaler :(n_samples, n_features)
-       """
-    for i in range(data.shape[0]):
-        MEAN = np.mean(data[i])
-        data[i] = data[i] - MEAN
-    return data
 def MA(data, WSZ=7):
     """
        :param data: raw spectrum data, shape (n_samples, n_features)
@@ -271,7 +262,7 @@ def train_model(model, epochs):
 a=[]
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
-pro = [0,SNV,MA,SG,CT]
+pro = [0,SNV]
 ss = [50,100,150,200,250,300]
 for h in range(5):
     c = []
@@ -280,7 +271,7 @@ for h in range(5):
     all = np.empty((4, 130))
     all = torch.tensor(all, dtype=torch.float)
 # 读取CSV数据
-    data = pd.read_csv('result.csv',header=None)
+    data = pd.read_csv('../result.csv',header=None)
 
     data = data.values
     # np.random.shuffle(data)
