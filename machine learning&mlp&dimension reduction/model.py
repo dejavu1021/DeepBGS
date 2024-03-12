@@ -135,7 +135,7 @@ spa = SPA.SPA()
 # data_train, data_test, label_train, label_test = train_test_split(features,lables,test_size=0.3,shuffle=True)
 # # 模型训练与拟合linear  rbf  poly
 t0 = time()
-data = pd.read_csv(f'result.csv', header=None,dtype=np.float32)
+data = pd.read_csv(f'../result.csv', header=None,dtype=np.float32)
 data = data.values
 print(data.shape)
 # data = torch.tensor(data, dtype=torch.float)
@@ -169,6 +169,7 @@ features = np.array(data_D)
 # test_data,test_lable = test[:,:-1],test[:,-1]
 train_data, test_data = features[:520], features[520:]
 train_lable, test_lable = lables[:520], lables[520:]
+
 # 均值中心化
 # train_data,mean = mean_centralization(train_data)
 # test_data = pro(test_data,mean)
