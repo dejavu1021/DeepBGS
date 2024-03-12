@@ -72,17 +72,7 @@ def SG(data, w=7, p=2,d=0):
     """
     return  signal.savgol_filter(data, w, p,deriv=d)
 # 标准正态变换
-# 均值中心化
-def CT(data):
-    """
-       :param data: raw spectrum data, shape (n_samples, n_features)
-       :return: data after MeanScaler :(n_samples, n_features)
-       """
-    for i in range(data.shape[0]):
-        MEAN = np.mean(data[i])
-        data[i] = data[i] - MEAN
 
-    return data
 
 def SNV(data):
     """
@@ -141,127 +131,127 @@ sn_all = np.empty((1,4))
 mcc_all = np.empty((1,4))
 au_all = np.empty((1,4))
 spa = SPA.SPA()
-for b in range(1):
-    # data_train, data_test, label_train, label_test = train_test_split(features,lables,test_size=0.3,shuffle=True)
-    # # 模型训练与拟合linear  rbf  poly
-    t0 = time()
-    data = pd.read_csv(f'result.csv', header=None,dtype=np.float32)
-    data = data.values
-    print(data.shape)
-    # data = torch.tensor(data, dtype=torch.float)
-    # print(data)
 
-    lables = data[:, -1]
-    # data_D = SG(data[:,:-1])
-    # data_D = data[:,:-1]
-    # data_D = MA(data[:,:-1])
-    data_D = SNV(data[:,:-1])
-    features = np.array(data_D)
+# data_train, data_test, label_train, label_test = train_test_split(features,lables,test_size=0.3,shuffle=True)
+# # 模型训练与拟合linear  rbf  poly
+t0 = time()
+data = pd.read_csv(f'result.csv', header=None,dtype=np.float32)
+data = data.values
+print(data.shape)
+# data = torch.tensor(data, dtype=torch.float)
+# print(data)
 
-    # features = TSNE(n_components = 8, method='exact').fit_transform(features)
-    # da = np.hstack((features,lables.reshape(650,1)))
-    # np.savetxt('tsnevalue.csv',da,delimiter=',')
-    #
-    # lis = CARS.CARS_Cloud(features, lables)
-    # print("获取波段数：", len(lis))
-    # print(lis)
-    # features = features[:,lis]
-    # da = np.hstack((features,lables.reshape(-1,1)))
-    # np.savetxt('cars22.csv',da,delimiter=',')
+lables = data[:, -1]
+# data_D = SG(data[:,:-1])
+# data_D = data[:,:-1]
+# data_D = MA(data[:,:-1])
+data_D = SNV(data[:,:-1])
+features = np.array(data_D)
 
-    # lables = lables.reshape(-1, 1)
-    # dataa = np.hstack((features,lables))
-    # train = dataa[:520]
-    # test = dataa[520:]
-    # np.random.shuffle(train)
-    # np.random.shuffle(test)
-    # train_data,train_lable = train[:,:-1],train[:,-1]
-    # test_data,test_lable = test[:,:-1],test[:,-1]
-    train_data, test_data = features[:520], features[520:]
-    train_lable, test_lable = lables[:520], lables[520:]
+# features = TSNE(n_components = 8, method='exact').fit_transform(features)
+# da = np.hstack((features,lables.reshape(650,1)))
+# np.savetxt('tsnevalue.csv',da,delimiter=',')
+#
+# lis = CARS.CARS_Cloud(features, lables)
+# print("获取波段数：", len(lis))
+# print(lis)
+# features = features[:,lis]
+# da = np.hstack((features,lables.reshape(-1,1)))
+# np.savetxt('cars22.csv',da,delimiter=',')
 
-    # 建模筛选
-    # m_max 默认为 50(Xcal样本大于52) ,如果 Xcal(m*n) m < 50 m_max=m-2
-    var_sel, var_sel_phase2 = spa.spa(
-        train_data, train_lable, m_min=2, m_max=50, Xval=test_data, yval=test_lable, autoscaling=1)
-    print(var_sel)
-    print(len(var_sel))
-    train_data = train_data[:,var_sel]
-    test_data = test_data[:,var_sel]
-    da = np.vstack((train_data,test_data))
-    da = np.hstack((da,lables.reshape(-1,1)))
-    np.savetxt('spa2.csv',da,delimiter=',')
-    print(da.shape)
+# lables = lables.reshape(-1, 1)
+# dataa = np.hstack((features,lables))
+# train = dataa[:520]
+# test = dataa[520:]
+# np.random.shuffle(train)
+# np.random.shuffle(test)
+# train_data,train_lable = train[:,:-1],train[:,-1]
+# test_data,test_lable = test[:,:-1],test[:,-1]
+train_data, test_data = features[:520], features[520:]
+train_lable, test_lable = lables[:520], lables[520:]
+# 均值中心化
+# train_data,mean = mean_centralization(train_data)
+# test_data = pro(test_data,mean)
 
-    # train_data,mean = mean_centralization(train_data)
-    # test_data = pro(test_data,mean)
-    #
+# 建模筛选
+# m_max 默认为 50(Xcal样本大于52) ,如果 Xcal(m*n) m < 50 m_max=m-2
+var_sel, var_sel_phase2 = spa.spa(
+    train_data, train_lable, m_min=2, m_max=50, Xval=test_data, yval=test_lable, autoscaling=1)
+print(var_sel)
+print(len(var_sel))
+train_data = train_data[:,var_sel]
+test_data = test_data[:,var_sel]
+da = np.vstack((train_data,test_data))
+da = np.hstack((da,lables.reshape(-1,1)))
+np.savetxt('spa2.csv',da,delimiter=',')
+print(da.shape)
+#
 
-    # pca = PCA(n_components =0.98).fit(train_data)
-    # train_data = pca.transform(train_data)
-    # test_data = pca.transform(test_data)
-    # fe = np.vstack((train_data,test_data))
-    # da = np.hstack((fe,lables.reshape(650,1)))
-    # np.savetxt('pcavalue.csv',da,delimiter=',')
-    #
-    # print(train_data.shape)
-    # joblib.dump(value=pca, filename=f'pca_model.m')
+# pca = PCA(n_components =0.98).fit(train_data)
+# train_data = pca.transform(train_data)
+# test_data = pca.transform(test_data)
+# fe = np.vstack((train_data,test_data))
+# da = np.hstack((fe,lables.reshape(650,1)))
+# np.savetxt('pcavalue.csv',da,delimiter=',')
+#
+# print(train_data.shape)
+# joblib.dump(value=pca, filename=f'pca_model.m')
 #   预处理方法
-    ac_list = []
-    auclist = []
-    aulist = []
-    fpr_list = []
-    tpr_list = []
-    pre_list = []
-    recall_list = []
-    sp_list = []
-    sn_list = []
-    mcc_list = []
-    # 模型预测
+ac_list = []
+auclist = []
+aulist = []
+fpr_list = []
+tpr_list = []
+pre_list = []
+recall_list = []
+sp_list = []
+sn_list = []
+mcc_list = []
+# 模型预测
 #
-    dtc = DecisionTreeClassifier()
+dtc = DecisionTreeClassifier()
 
-    rfc = RandomForestClassifier()
+rfc = RandomForestClassifier()
 
-    svc = SVC(kernel='rbf',probability=True)
-    xgb = XGBClassifier()
-    Models = [ dtc, rfc,svc,xgb]
-    for i in range(len(Models)):
-        ac,auc,precisions,recalls,fpr,tpr,sp,sn,mcc= regression_model(train_data,test_data, train_lable, test_lable,
-                                                  Models[i])
+svc = SVC(kernel='rbf',probability=True)
+xgb = XGBClassifier()
+Models = [ dtc, rfc,svc,xgb]
+for i in range(len(Models)):
+    ac,auc,precisions,recalls,fpr,tpr,sp,sn,mcc= regression_model(train_data,test_data, train_lable, test_lable,
+                                              Models[i])
 #
-        ac_list.append(ac)
-        auclist.append(auc)
-        pre_list.append(precisions)
-        recall_list.append(recalls)
-        fpr_list.append(fpr)
-        tpr_list.append(tpr)
-        sp_list.append(sp)
-        sn_list.append(sn)
-        mcc_list.append(mcc)
-        # aulist.append(au)
+    ac_list.append(ac)
+    auclist.append(auc)
+    pre_list.append(precisions)
+    recall_list.append(recalls)
+    fpr_list.append(fpr)
+    tpr_list.append(tpr)
+    sp_list.append(sp)
+    sn_list.append(sn)
+    mcc_list.append(mcc)
+    # aulist.append(au)
 #
 #
-    print('ac_listof test data',ac_list)
-    # print('auc',auclist)
-    # print('sp',sp_list)
-    # print('sn',sn_list)
-    # print('mcc',mcc_list)
+print('ac_listof test data',ac_list)
+# print('auc',auclist)
+# print('sp',sp_list)
+# print('sn',sn_list)
+# print('mcc',mcc_list)
 
 #
-    acc_all[b] = ac_list
-    auc_all[b] = auclist
-    sp_all[b] = sp_list
-    sn_all[b] = sn_list
-    mcc_all[b] = mcc_list
-    # au_all[b] = aulist
-    # print('fpr',fpr_list)
-    # print('tpr',tpr_list)
-    # print('pre',pre_list)
-    # print('recall',recall_list)
-    # tpr_all[b] = tpr_list
-    # pre_all[b] = pre_list
-    # recall_all[b] = recall_list
+acc_all = ac_list
+auc_all = auclist
+sp_all = sp_list
+sn_all = sn_list
+mcc_all = mcc_list
+# au_all = aulist
+# print('fpr',fpr_list)
+# print('tpr',tpr_list)
+# print('pre',pre_list)
+# print('recall',recall_list)
+# tpr_all[b] = tpr_list
+# pre_all[b] = pre_list
+# recall_all[b] = recall_list
 
 
 a1 = np.array(acc_all)
