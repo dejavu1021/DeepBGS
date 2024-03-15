@@ -1,5 +1,5 @@
 Quick Start:
-1. To run DeepBGS, you need a python (3.7 or higher) environment. 2.
+1. To run DeepBGS, you need a python (3.7 or higher) environment.
 2. Ensure that the extension packages including Numpy, Pandas and seaborn are installed for your current python environment.
 3. Download the above programs to the runtime directory
 4. Result.csv is the data used to train and prediction.
